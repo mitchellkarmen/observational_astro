@@ -88,11 +88,12 @@ def make_plot(targets, night, filepath=None):
 	                 time=midnights[i_night],
 	                 use_local_tz=False
 	                 )
-	    transit_airmass = apo.altaz(target[f'night{night}_transit'], target['coordinates']).secz
-	    transit_time_utc = Time(target[f'night{night}_transit'], format='iso') #+ 7*u.hr
-	    if (transit_airmass > 0) & (transit_airmass < 5):
-	        plt.plot_date(transit_time_utc.datetime, transit_airmass, color=f'C{ii}')
-	        plt.text(transit_time_utc.datetime, transit_airmass, target['pl_name'], fontsize=10)
+	    if f'night{night}_transit' in target.columns:
+		    transit_airmass = apo.altaz(target[f'night{night}_transit'], target['coordinates']).secz
+		    transit_time_utc = Time(target[f'night{night}_transit'], format='iso') #+ 7*u.hr
+		    if (transit_airmass > 0) & (transit_airmass < 5):
+		        plt.plot_date(transit_time_utc.datetime, transit_airmass, color=f'C{ii}')
+		plt.text(transit_time_utc.datetime, transit_airmass, target['pl_name'], fontsize=10)
 	    ii+=1
 	plt.xlim(obs_times[i_night][0].datetime, obs_times[i_night][1].datetime)
 	plt.ylim(3, 0.98)
@@ -102,7 +103,7 @@ def make_plot(targets, night, filepath=None):
 	return fig
 
 
-def get_best_planets(night, constraints=default_constraints, plotting=True):
+def get_best_planets(night, constraints=default_constraints, plot_filepath=None):
 	"""
 	retrieves a list of planets with visible transits on a given observing night
 	input:
@@ -123,8 +124,8 @@ def get_best_planets(night, constraints=default_constraints, plotting=True):
                                     (all_planets[f'night{night}_transit_delay'].values < 0))]
 
 
-	if plotting:
-		make_plot(targets, night=1)
+	if plot_filepath:
+		make_plot(targets, night=1, filepath = plot_filepath)
 		plt.show()
 
 	return targets
